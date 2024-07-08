@@ -1,6 +1,12 @@
 # Bucle
+q = 1
+n = 2
+
 for e in [1,2,3,4,5]:
 	print(e)
+	x = 3
+
+# Condicion
 
 # Bucle + condicion
 for e in [1,2,3,4,5]:
@@ -11,4 +17,4 @@ for e in [1,2,3,4,5]:
 
 # Funciones
 def sumar(a):
-	return a+1 if a > 0 else a+23
+	return a+1 #if a > 0 else a+23

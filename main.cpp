@@ -61,6 +61,7 @@ LAS VARIABLES NO TIENEN UN VALOR ASIGNADO
 #include <iostream>
 #include <string.h>
 #include <list>
+#include <fstream>
 //graficos(){ posx1=120; posx2=120; posx=175; posy=100; tam1=100; tam2=75; cuadrado(200,200,tam1); linea(100,100,tam1,50); rectangulo(posx1,posy,tam2,tam2); radio=24; circulo(posx,posy,radio); }
 /*Modificar los tokens*/
 /* #define GRAFICOS    0
@@ -101,6 +102,11 @@ LAS VARIABLES NO TIENEN UN VALOR ASIGNADO
 #define NMETODO		18
 #define RETORNO		19
 #define MAS        	20
+#define TAB      	21
+#define SALTO      	22
+#define IGUAL       23
+#define MENOR       24
+#define DIGUAL      25
 
 #define FIN     666
 #define ERROR   999
@@ -206,8 +212,9 @@ class Analisis{
         string numero;
         string variable;
         string cadena;
-        int tTransicion[22][14];
+        int tTransicion[100][100];
         TablaSimbolos ts;
+        // streambuf archivo;
     public:
         Analisis(char input[100]){
             //Aqui hacer la apertura de archivo de texto plano
@@ -215,23 +222,10 @@ class Analisis{
             i=0;
 
             /*Modificar: Adecuar su tabla de simbolos*/
-/*             ts.Insertar("graficos",GRAFICOS,"pclave",vacio,vacio);
-            ts.Insertar("(",APAR,"pclave",vacio,vacio);
-            ts.Insertar(")",CPAR,"pclave",vacio,vacio);
-            ts.Insertar("{",ALLAVE,"pclave",vacio,vacio);
-            ts.Insertar("}",CLLAVE,"pclave",vacio,vacio);
-            ts.Insertar("=",IGUAL,"pclave",vacio,vacio);
-            ts.Insertar(";",PCOMA,"pclave",vacio,vacio);
-            ts.Insertar("cuadrado",CUADRADO,"pclave",vacio,vacio);
-            ts.Insertar("rectangulo",RECTANGULO,"pclave",vacio,vacio);
-            ts.Insertar("circulo",CIRCULO,"pclave",vacio,vacio);
-            ts.Insertar("linea",LINEA,"pclave",vacio,vacio);
-            ts.Insertar(",",COMA,"pclave",vacio,vacio); */
             ts.Insertar("for",BUCLEF,"pclave",vacio,vacio);
             ts.Insertar("var",VAR,"pclave",vacio,vacio);
             ts.Insertar("in",INF,"pclave",vacio,vacio);
             ts.Insertar("[",ACORCHETE,"pclave",vacio,vacio);
-            // ts.Insertar("num",NUM,"pclave",vacio,vacio);
             ts.Insertar(",",COMA,"pclave",vacio,vacio);
             ts.Insertar("]",CCORCHETE,"pclave",vacio,vacio);
             ts.Insertar(":",DPUNTOSF,"pclave",vacio,vacio);
@@ -241,18 +235,73 @@ class Analisis{
 
             ts.Insertar("if",SI,"pclave",vacio,vacio);
             ts.Insertar(">",MAYOR,"pclave",vacio,vacio);
+            ts.Insertar("<",MENOR,"pclave",vacio,vacio);
+            ts.Insertar("==",DIGUAL,"pclave",vacio,vacio);
+            ts.Insertar("=",IGUAL,"pclave",vacio,vacio);
             ts.Insertar("else",ENTONCES,"pclave",vacio,vacio);
             ts.Insertar("def",METODO,"pclave",vacio,vacio);
             ts.Insertar("sumar",NMETODO,"pclave",vacio,vacio);
             ts.Insertar("return",RETORNO,"pclave",vacio,vacio);
             ts.Insertar("+",MAS,"pclave",vacio,vacio);
+
+            for(int ii=0;ii<8;ii++){
+                for(int jj=0;jj<11;jj++){
+                    tTransicion[ii][jj]=ERROR;
+                }
+            }
+            tTransicion[0][VAR]=1;
+            tTransicion[0][TAB]=0;
+            tTransicion[1][IGUAL]=2;
+            tTransicion[2][VAR]=3;
+            tTransicion[2][NUM]=3;
+            tTransicion[3][SALTO]=0;
+            tTransicion[0][IMPRIMIR]=4;
+            tTransicion[4][APAR]=5;
+            tTransicion[5][VAR]=6;
+            tTransicion[5][NUM]=6;
+            tTransicion[5][CADENA]=6;
+            tTransicion[6][COMA]=5;
+            tTransicion[6][CPAR]=7;
+            tTransicion[7][SALTO]=0;
+            tTransicion[0][BUCLEF]=8;
+            tTransicion[8][VAR]=9;
+            tTransicion[9][INF]=10;
+            tTransicion[10][ACORCHETE]=11;
+            tTransicion[11][VAR]=12;
+            tTransicion[11][NUM]=12;
+            tTransicion[12][COMA]=11;
+            tTransicion[12][CCORCHETE]=13;
+            tTransicion[13][DPUNTOSF]=14;
+            tTransicion[14][SALTO]=0;
+            tTransicion[0][SI]=15;
+            tTransicion[15][VAR]=16;
+            tTransicion[15][NUM]=16;
+            tTransicion[16][MAYOR]=17;
+            tTransicion[16][MENOR]=17;
+            tTransicion[16][DIGUAL]=17;
+            tTransicion[17][VAR]=18;
+            tTransicion[17][NUM]=18;
+            tTransicion[18][DPUNTOSF]=0;
+            tTransicion[0][ENTONCES]=19;
+            tTransicion[19][DPUNTOSF]=0;
+            tTransicion[0][METODO]=20;
+            tTransicion[20][NMETODO]=21;
+            tTransicion[21][APAR]=22;
+            tTransicion[22][VAR]=23;
+            tTransicion[23][COMA]=22;
+            tTransicion[23][CPAR]=24;
+            tTransicion[24][DPUNTOSF]=0;
+            tTransicion[0][RETORNO]=25;
+            tTransicion[25][VAR]=26;
+            tTransicion[25][NUM]=26;
+            tTransicion[26][SALTO]=0;
         }
 
         bool iselement(char c){
             char elements[100];
             /*AQUI DEBEN DE DEFINIR LOS CARACTERES QUE NO SEAN LETRAS O NUMEROS Y QUE CORRESPONDAN AL LENGUAJE*/
             /*NO DEBEN DE REPETIR CARACTERES*/
-            strcpy(elements,"(),:[]+>");/*<- AQUI MODIFICAR*/
+            strcpy(elements,"(),:[]=+><");/*<- AQUI MODIFICAR*/
             int elements_cont=0;
             while(elements[elements_cont]!='\0'){
                 if(elements[elements_cont]==c)
@@ -266,8 +315,13 @@ class Analisis{
             while(cad[i]==' '){
                 i++;
             }
-            while(cad[i]=='\n'){
+            if(cad[i]=='\n'){
                 i++;
+                return SALTO;
+            }
+            if(cad[i]=='\t'){
+                i++;
+                return TAB;
             }
             if(cad[i]=='\0'){
                 return FIN;
@@ -359,9 +413,22 @@ class Analisis{
                 return ERROR;
             }
         }
+        bool leerArchivo (const char direccion[])
+        {
+            ifstream archivo(direccion);
+            
+            if (archivo.bad())
+                return false;
+
+            archivo.get(cad, 999, '\0');
+
+            archivo.close();
+            return true;
+        }
 
         bool Lexico(){
             i=0;
+            cout<<cad<<endl;
             int token=0;
             while(true){
                 token=getToken();
@@ -385,7 +452,25 @@ class Analisis{
         }
 
         bool Sintactico(){
-            return true;
+            i=0;
+            int token=0;
+            estado=0;
+            while(true){
+                token=getToken();
+                if(token==FIN){
+                    if(estado==0)/*VERIFICAR EL ESTADO FINAL*/
+                        return true;
+                    Error(2000);
+                    return false;
+                }
+                cout<<"(e"<<estado<<",t"<<token<<")"<<endl;
+                estado=tTransicion[estado][token];
+                if(estado==ERROR){
+                    Error(400);
+                    return false;
+                }
+            }
+            return false;
         }
         bool Semantico(){
             return true;
@@ -415,8 +500,11 @@ int main()
 {
     // Analisis*obj=new Analisis("graficos(){ posx1=120; posx2=120; posx=175; posy=100; tam1=100; tam2=75; cuadrado(200,200,tam1); linea(100,100,tam1,50); rectangulo(posx1,posy,tam2,tam2); radio=24; circulo(posx,posy,radio); }");
     // Analisis*obj=new Analisis("for e in [1,2,3,4,5]: print(e)");
-    // Analisis*obj=new Analisis("for e in [1,2,3,4,5]: if e > 2: print('es mayor a 2') else: print('es mayor igual a 2')");
-    Analisis*obj=new Analisis("def sumar(a): return a+1 if a > 0 else a+23");
+    // Analisis*obj=new Analisis("for e in [1,2,3,4,5]:nn if e > 2:nn print(2)nn else: print(3) nn");
+    Analisis*obj = new Analisis("");
+    // Analisis*obj=new Analisis("print(1) nn");
+    // Analisis*obj=new Analisis("def sumar(a): return a+1 if a > 0 else a+23");
+    obj->leerArchivo("input.txt");
     obj->Analizar();
     return true;
 }
