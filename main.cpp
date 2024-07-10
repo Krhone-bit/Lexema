@@ -138,7 +138,7 @@ class Atributos{
             valor=val;
             estado=est;
         }
-        int Mostrar(){
+        void Mostrar(){
             cout<<"Tipo("<<tipo<<") \t";
             cout<<"Lexema("<<lexema<<") \t";
             cout<<"Token("<<token<<") \t";
@@ -285,7 +285,8 @@ class Analisis{
             tTransicion[0][ENTONCES]=19;
             tTransicion[19][DPUNTOSF]=0;
             tTransicion[0][METODO]=20;
-            tTransicion[20][NMETODO]=21;
+            // tTransicion[20][NMETODO]=21;
+            tTransicion[20][VAR]=21;
             tTransicion[21][APAR]=22;
             tTransicion[22][VAR]=23;
             tTransicion[23][COMA]=22;
@@ -463,6 +464,12 @@ class Analisis{
                     Error(2000);
                     return false;
                 }
+                else if (token == VAR) {
+                    Atributos attr;
+                    if (!ts.Buscar(variable, attr)){
+                        ts.Insertar(variable, VAR, "var", null, null);
+                    }
+                }
                 cout<<"(e"<<estado<<",t"<<token<<")"<<endl;
                 estado=tTransicion[estado][token];
                 if(estado==ERROR){
@@ -473,7 +480,36 @@ class Analisis{
             return false;
         }
         bool Semantico(){
-            return true;
+            ts.Mostrar();
+            // int token=0;
+            //  while(true){
+            //     token=getToken();
+            //     if (token == VAR){
+
+            //     }
+            //     if (token == IMPRIMIR){
+
+            //     }
+            //     if (token == BUCLEF){
+
+            //     }
+            //     if (token == SI){
+
+            //     }
+            //     if (token == ENTONCES){
+
+            //     }
+            //     if (token == RETORNO){
+
+            //     }
+            //     if(token == TAB){
+
+            //     }
+            //     if (token == METODO){
+
+            //     }
+            // }
+            // return true;
         }
         bool Ejecucion(){
             return true;
@@ -504,7 +540,16 @@ int main()
     Analisis*obj = new Analisis("");
     // Analisis*obj=new Analisis("print(1) nn");
     // Analisis*obj=new Analisis("def sumar(a): return a+1 if a > 0 else a+23");
-    obj->leerArchivo("input.txt");
+    // obj->leerArchivo("input.py");
+    // obj->leerArchivo("input2.py");
+    // obj->leerArchivo("input3.py");
+    // obj->leerArchivo("input4.py");
+    // obj->leerArchivo("input5.py");
+    // obj->leerArchivo("input6.py");
+    // obj->leerArchivo("input7.py");
+    // obj->leerArchivo("input8.py");
+    // obj->leerArchivo("input9.py");
+    obj->leerArchivo("input10.py");
     obj->Analizar();
     return true;
 }

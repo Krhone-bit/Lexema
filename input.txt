@@ -1,5 +1,0 @@
-for e in [1,2,3,4,5]:
-    if e == 2:
-        print(2)
-    else: 
-        print(3)
