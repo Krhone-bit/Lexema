@@ -111,7 +111,7 @@ LAS VARIABLES NO TIENEN UN VALOR ASIGNADO
 #define FIN     666
 #define ERROR   999
 
-#define null "6c3e226b4d4795d518ab341b0824ec29"
+#define null  "6c3e226b4d4795d518ab341b0824ec29"
 #define vacio "-"
 #define asignado "asignado"
 
@@ -138,13 +138,12 @@ class Atributos{
             valor=val;
             estado=est;
         }
-        int Mostrar(){
+        void Mostrar(){
             cout<<"Tipo("<<tipo<<") \t";
             cout<<"Lexema("<<lexema<<") \t";
             cout<<"Token("<<token<<") \t";
             cout<<"Valor("<<valor<<") \t";
             cout<<"Estado("<<estado<<")"<<endl;
-
         }
 };
 
@@ -154,6 +153,8 @@ class TablaSimbolos{
     public:
         void Insertar(string lex,int tok,string tip,string val,string est){
             Atributos attr(lex,tok,tip,val,est);
+            // cout<<lex<<endl;
+            // attr.Mostrar();
             tabla.push_back(attr);
         }
         bool ActualizarValor(string lex,string val){
@@ -166,7 +167,7 @@ class TablaSimbolos{
             return false;
         }
         bool ActualizarEstado(string lex,string est){
-            for (auto &item:tabla){
+            for (auto item:tabla){
                 if(item.lexema == lex){
                     item.estado = est;
                     return true;
@@ -244,6 +245,7 @@ class Analisis{
             ts.Insertar("return",RETORNO,"pclave",vacio,vacio);
             ts.Insertar("+",MAS,"pclave",vacio,vacio);
 
+            // ts.Mostrar();
             for(int ii=0;ii<8;ii++){
                 for(int jj=0;jj<11;jj++){
                     tTransicion[ii][jj]=ERROR;
@@ -301,7 +303,7 @@ class Analisis{
             char elements[100];
             /*AQUI DEBEN DE DEFINIR LOS CARACTERES QUE NO SEAN LETRAS O NUMEROS Y QUE CORRESPONDAN AL LENGUAJE*/
             /*NO DEBEN DE REPETIR CARACTERES*/
-            strcpy(elements,"(),:[]=+><");/*<- AQUI MODIFICAR*/
+            strcpy(elements,"(),:[]=+><'");/*<- AQUI MODIFICAR*/
             int elements_cont=0;
             while(elements[elements_cont]!='\0'){
                 if(elements[elements_cont]==c)
@@ -322,6 +324,10 @@ class Analisis{
             if(cad[i]=='\t'){
                 i++;
                 return TAB;
+            }
+            if(cad[i]=='\''){
+                // i++;
+                return CADENA;
             }
             if(cad[i]=='\0'){
                 return FIN;
@@ -428,20 +434,21 @@ class Analisis{
 
         bool Lexico(){
             i=0;
-            cout<<cad<<endl;
+            // cout<<cad<<endl;
             int token=0;
             while(true){
                 token=getToken();
-                cout<<token<<endl;
+                // cout<<token<<endl;
                 //cout<<"Lexico: "<<token<<endl;
                 if(token==FIN){
                     return true;
                 }
-                else if(token==VAR){
-                    Atributos attr;
-                    if(!ts.Buscar(variable,attr)){
-                        ts.Insertar(variable,VAR,"var",null,null);
-                    }
+                else if (token == VAR){
+                            Atributos attr;
+                            if (!ts.Buscar(variable, attr))
+                            {
+                                ts.Insertar(variable, VAR, "var", null, null);
+                            }
                 }
                 else if(token==ERROR){
                     //Aqui deben de mostrar el error lo m�s especifico posible
@@ -458,7 +465,7 @@ class Analisis{
             while(true){
                 token=getToken();
                 if(token==FIN){
-                    if(estado==0)/*VERIFICAR EL ESTADO FINAL*/
+                    if(estado==21 || estado==0)/*VERIFICAR EL ESTADO FINAL*/
                         return true;
                     Error(2000);
                     return false;
@@ -473,7 +480,41 @@ class Analisis{
             return false;
         }
         bool Semantico(){
+            // ts.Mostrar();
+            // int token=0;
+            //  while(true){
+            //     token=getToken();
+            //     if (token == VAR){
+
+            //     }
+            //     if (token == IMPRIMIR){
+                    
+            //     }
+            //     if (token == BUCLEF){
+                    
+            //     }
+            //     if (token == SI){
+                    
+            //     }
+            //     if (token == ENTONCES){
+
+            //     }
+            //     if (token == RETORNO){
+
+            //     }
+            //     if(token == TAB){
+
+            //     }
+            //     if (token == METODO){
+
+            //     }
+            // }
             return true;
+        }
+
+        bool Semantico_original(){
+            // ts.Mostrar();
+            // return true;
         }
         bool Ejecucion(){
             return true;
@@ -502,9 +543,10 @@ int main()
     // Analisis*obj=new Analisis("for e in [1,2,3,4,5]: print(e)");
     // Analisis*obj=new Analisis("for e in [1,2,3,4,5]:nn if e > 2:nn print(2)nn else: print(3) nn");
     Analisis*obj = new Analisis("");
-    // Analisis*obj=new Analisis("print(1) nn");
+    // Analisis*obj=new Analisis("print(1) \n");
     // Analisis*obj=new Analisis("def sumar(a): return a+1 if a > 0 else a+23");
-    obj->leerArchivo("input.txt");
+    obj->leerArchivo("input2.py");
     obj->Analizar();
+    
     return true;
 }
