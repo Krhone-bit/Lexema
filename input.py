@@ -7,8 +7,8 @@ for e in [1,2,3,4,5]:
 
 
 for e in [1,2,3,4,5]:
-	if e > 2:
-		print('es mayor a 2')
+	if e == 2:
+		print(e)
 	else:
 		print('es mayor igual a 2')
 

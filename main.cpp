@@ -62,6 +62,8 @@ LAS VARIABLES NO TIENEN UN VALOR ASIGNADO
 #include <string.h>
 #include <list>
 #include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
 //graficos(){ posx1=120; posx2=120; posx=175; posy=100; tam1=100; tam2=75; cuadrado(200,200,tam1); linea(100,100,tam1,50); rectangulo(posx1,posy,tam2,tam2); radio=24; circulo(posx,posy,radio); }
 /*Modificar los tokens*/
 /* #define GRAFICOS    0
@@ -114,6 +116,8 @@ LAS VARIABLES NO TIENEN UN VALOR ASIGNADO
 #define null "6c3e226b4d4795d518ab341b0824ec29"
 #define vacio "-"
 #define asignado "asignado"
+
+#define MAX 100 // Tamaño máximo de la pila
 
 using namespace std;
 
@@ -479,8 +483,22 @@ class Analisis{
             }
             return false;
         }
+        
         bool Semantico(){
-            ts.Mostrar();
+            // ts.Mostrar();
+            i=0;
+            int token=0;
+            // while (true)
+            // {
+            //     if(token == VAR){
+            //         Atributos attr;
+            //         if (!ts.Buscar(variable, attr)){
+            //             Error(500);
+            //             return false;
+            //         }
+            //     }
+            // }
+            
             // int token=0;
             //  while(true){
             //     token=getToken();
@@ -509,11 +527,275 @@ class Analisis{
 
             //     }
             // }
-            // return true;
-        }
-        bool Ejecucion(){
             return true;
         }
+
+
+bool Ejecucion() {
+    int i = 0;
+    int token = getToken();
+    while (true) {
+        if (token == FIN) {
+            return true;
+        }
+        if (token == VAR) {
+            string tmp_var = variable;
+            cout << "const " << tmp_var;
+            token = getToken();
+            if (token == IGUAL) {
+                cout << "=";
+            }
+            token = getToken();
+            if (token == VAR) {
+                Atributos attr;
+                ts.Buscar(variable, attr);
+                cout << attr.valor;
+            } else if (token == NUM) {
+                ts.ActualizarValor(tmp_var, numero);
+                cout << numero;
+            }
+            token = getToken();
+            if (token == SALTO) {
+                cout << ";" << endl;
+            }
+            token = getToken();
+        } else if (token == IMPRIMIR) {
+            cout << "console.log";
+            token = getToken();
+            cout << "(";
+            token = getToken();
+            Atributos attr;
+            if (token == VAR) {
+                ts.Buscar(variable, attr);
+                cout << variable;
+            } else if (token == CADENA) {
+                cout << "\"" << cadena << "\"";
+            } else if (token == NUM) {
+                cout << numero;
+            }
+            token = getToken();
+            cout << ")";
+            token = getToken();
+            cout << ";" << endl;
+            token = getToken();
+        } else if (token == BUCLEF) {
+            cout << "for(";
+            token = getToken();
+            string loop_var = variable; // Guardar la variable del bucle
+            cout << "const " << loop_var;
+            token = getToken();
+            cout << " of ";
+            token = getToken();
+            cout << "[";
+            Atributos attr;
+            while (token != CCORCHETE) {
+                token = getToken();
+                if (token == NUM) {
+                    cout << numero;
+                } else if (token == COMA) {
+                    cout << ",";
+                }
+            }
+            cout << "]";
+            token = getToken(); // :
+            cout << ")";
+            cout << "{" << endl;
+            token = getToken(); // SALTO
+            token = getToken(); // TAB
+            while (true){
+                token = getToken(); // IMPRIMIR
+                if (token == FIN || token == BUCLEF || token == METODO) {
+                    cout << "}" << endl;
+                    break;
+                }
+
+                if (token == IMPRIMIR) {
+                    cout << "\tconsole.log";
+                    token = getToken();
+                    cout << "(";
+                    token = getToken();
+                    if (token == VAR) {
+                        ts.Buscar(variable, attr);
+                        cout << variable;
+                    } else if (token == CADENA) {
+                        cout << "\"" << cadena << "\"";
+                    } else if (token == NUM) {
+                        cout << numero;
+                    }
+                    token = getToken();
+                    token = getToken();
+                    cout << ");" << endl;
+                }
+                if (token==VAR){
+                    string tmp_var = variable;
+                    cout << "\tconst " << tmp_var;
+                    token = getToken();
+                    if (token == IGUAL) {
+                        cout << "=";
+                    }
+                    token = getToken();
+                    if (token == VAR) {
+                        Atributos attr;
+                        ts.Buscar(variable, attr);
+                        cout << attr.valor;
+                    } else if (token == NUM) {
+                        ts.ActualizarValor(tmp_var, numero);
+                        cout << numero;
+                    }
+                    cout << ";" << endl;
+                    token = getToken();
+                    // cout << ">>>>>>" << token << endl;
+                }
+                if (token == SI){
+                    cout << "\tif(";
+                    token = getToken();
+                    if (token == VAR) {
+                        cout << variable;
+                        token = getToken();
+                    }
+                    if (token == MAYOR) {
+                        cout << " > ";
+                        token = getToken();
+                    }else if (token == MENOR) {
+                        cout << " < ";
+                        token = getToken();
+                    }else if (token == DIGUAL) {
+                        cout << " == ";
+                        token = getToken();
+                    }
+                    if (token == NUM) {
+                        cout << numero;
+                        token = getToken();
+                    }
+                    token = getToken();
+                    cout << "){" << endl;
+                    token = getToken();
+                    token = getToken();
+                    token = getToken();
+                    if (token == IMPRIMIR) {
+                        cout << "\t\tconsole.log";
+                        token = getToken();
+                        cout << "(";
+                        token = getToken();
+                        if (token == VAR) {
+                            ts.Buscar(variable, attr);
+                            cout << variable;
+                        } else if (token == CADENA) {
+                            cout << "\"" << cadena << "\"";
+                        } else if (token == NUM) {
+                            cout << numero;
+                        }
+                        token = getToken();
+                        token = getToken();
+                        cout << ");" << endl;
+                        token = getToken();
+                        token = getToken();
+                        cout << "\t}";
+                    }
+                    if (token == ENTONCES){
+                        token = getToken();
+                        token = getToken();
+                        token = getToken();
+                        token = getToken();
+                        token = getToken();
+                        cout << "else{" << endl;
+                        if (token == IMPRIMIR) {
+                            cout << "\t\tconsole.log";
+                            token = getToken();
+                            cout << "(";
+                            token = getToken();
+                            if (token == VAR) {
+                                ts.Buscar(variable, attr);
+                                cout << variable;
+                                token = getToken();
+                            } else if (token == CADENA) {
+                                cout << "\"" << cadena << "\"";
+                                token = getToken();
+                            } else if (token == NUM) {
+                                cout << numero;
+                                token = getToken();
+                            }
+                            cout << ");" << endl;
+                            token = getToken();
+                            cout << "\t}"<<endl;
+                            // cout << "TOKEN: " << token << endl;
+                        }
+                    } 
+                }
+            }
+            // token=getToken();
+            // cout<< ">>>>>>" << token << endl;
+        }else if (token == SI){
+            cout << "if(";
+            token = getToken();
+            if (token == VAR) {
+                cout << variable;
+            } else if (token == NUM) {
+                cout << numero;
+            }
+            token = getToken();
+            cout << ")";
+            token = getToken();
+            if (token == BUCLEF) {
+                cout << "{" << endl;
+            }
+        }else if (token == ENTONCES){
+            token = getToken();
+            cout << "}" << endl;
+            token = getToken();
+            if (token == BUCLEF) {
+                cout << "}" << endl;
+            }
+        } else if (token == METODO) {
+            cout << "function ";
+            token = getToken();
+            if (token == VAR) {
+                cout << variable;
+            }
+            token = getToken();
+            if (token == APAR) {
+                cout << "(";
+                token = getToken();
+                while (token != CPAR) {
+                    if (token == VAR) {
+                        cout << variable;
+                    }
+                    token = getToken();
+                    if (token == COMA) {
+                        cout << ", ";
+                        token = getToken();
+                    }
+                }
+                cout << ")";
+            }
+            token = getToken(); // :
+            cout << " {" << endl;
+            token = getToken(); // salto de linea
+            token = getToken(); // tab
+            while (token == TAB) {
+                token = getToken();
+                if (token == RETORNO) {
+                    cout << "\treturn ";
+                    token = getToken();
+                    if (token == VAR) {
+                        cout << variable;
+                    } else if (token == NUM) {
+                        cout << numero;
+                    }
+                    token = getToken();
+                    if (token == SALTO) {
+                        cout << ";" << endl;
+                        token = getToken();
+                    }
+                }
+            }
+            cout << "}" << endl;
+        } else {
+            token = getToken();
+        }
+    }
+}
+
         void Analizar(){
             if(Lexico()){
                 if(Sintactico()){
@@ -529,6 +811,9 @@ class Analisis{
             if(nroError==100){ //Error de Analisis Lexico
                 cout<<"No se reconoce: "<<cad[i]<<" en la posicion "<<i;
             }
+            if(nroError==500){
+                cout<<"La variable: "<<variable<<" no ha sido declarada";
+            }
         }
 };
 
@@ -541,7 +826,7 @@ int main()
     // Analisis*obj=new Analisis("print(1) nn");
     // Analisis*obj=new Analisis("def sumar(a): return a+1 if a > 0 else a+23");
     // obj->leerArchivo("input.py");
-    // obj->leerArchivo("input2.py");
+    obj->leerArchivo("input2.py");
     // obj->leerArchivo("input3.py");
     // obj->leerArchivo("input4.py");
     // obj->leerArchivo("input5.py");
@@ -549,7 +834,7 @@ int main()
     // obj->leerArchivo("input7.py");
     // obj->leerArchivo("input8.py");
     // obj->leerArchivo("input9.py");
-    obj->leerArchivo("input10.py");
+    // obj->leerArchivo("input10.py");
     obj->Analizar();
     return true;
 }
