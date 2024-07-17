@@ -433,11 +433,11 @@ class Analisis{
 
         bool Lexico(){
             i=0;
-            cout<<cad<<endl;
+            // cout<<cad<<endl;
             int token=0;
             while(true){
                 token=getToken();
-                cout<<token<<endl;
+                // cout<<token<<endl;
                 //cout<<"Lexico: "<<token<<endl;
                 if(token==FIN){
                     return true;
@@ -474,7 +474,7 @@ class Analisis{
                         ts.Insertar(variable, VAR, "var", null, null);
                     }
                 }
-                cout<<"(e"<<estado<<",t"<<token<<")"<<endl;
+                // cout<<"(e"<<estado<<",t"<<token<<")"<<endl;
                 estado=tTransicion[estado][token];
                 if(estado==ERROR){
                     Error(400);
@@ -535,8 +535,17 @@ bool Ejecucion() {
     int i = 0;
     int token = getToken();
     while (true) {
+        // token = getToken();
         if (token == FIN) {
             return true;
+        }
+        if (token == TAB){
+            cout << "\t";
+            token = getToken();
+            if (token == TAB) {
+                cout << "\t";
+                token = getToken();
+            }
         }
         if (token == VAR) {
             string tmp_var = variable;
@@ -558,8 +567,10 @@ bool Ejecucion() {
             if (token == SALTO) {
                 cout << ";" << endl;
             }
-            token = getToken();
-        } else if (token == IMPRIMIR) {
+            // token = getToken();
+            // cout << "=======" << token << endl;
+        } 
+        if (token == IMPRIMIR) {
             cout << "console.log";
             token = getToken();
             cout << "(";
@@ -601,14 +612,21 @@ bool Ejecucion() {
             cout << ")";
             cout << "{" << endl;
             token = getToken(); // SALTO
-            token = getToken(); // TAB
+            // token = getToken(); // TAB
             while (true){
                 token = getToken(); // IMPRIMIR
-                if (token == FIN || token == BUCLEF || token == METODO) {
+                if (token == FIN || token == METODO) {
+                    
                     cout << "}" << endl;
                     break;
                 }
-
+                if (token == BUCLEF) {
+                    // token = getToken();
+                    // cout << "==========" << token << endl;
+                    // cout << "}" << endl;
+                    break;
+                }
+                // token = getToken();
                 if (token == IMPRIMIR) {
                     cout << "\tconsole.log";
                     token = getToken();
@@ -670,8 +688,8 @@ bool Ejecucion() {
                     token = getToken();
                     cout << "){" << endl;
                     token = getToken();
-                    token = getToken();
-                    token = getToken();
+                    // token = getToken();
+                    // token = getToken();
                     if (token == IMPRIMIR) {
                         cout << "\t\tconsole.log";
                         token = getToken();
@@ -690,7 +708,7 @@ bool Ejecucion() {
                         cout << ");" << endl;
                         token = getToken();
                         token = getToken();
-                        cout << "\t}";
+                        cout << "\t}" << endl;
                     }
                     if (token == ENTONCES){
                         token = getToken();
@@ -730,22 +748,54 @@ bool Ejecucion() {
             token = getToken();
             if (token == VAR) {
                 cout << variable;
-            } else if (token == NUM) {
+                token = getToken();
+            }
+            if (token == MAYOR) {
+                cout << " > ";
+                token = getToken();
+            }else if (token == MENOR) {
+                cout << " < ";
+                token = getToken();
+            }else if (token == DIGUAL) {
+                cout << " == ";
+                token = getToken();
+            }
+            if (token == NUM) {
                 cout << numero;
+                token = getToken();
             }
-            token = getToken();
-            cout << ")";
-            token = getToken();
-            if (token == BUCLEF) {
-                cout << "{" << endl;
+            if (token == VAR) {
+                cout << variable;
+                token = getToken();
             }
+            cout << "){" << endl;
+            token = getToken();
         }else if (token == ENTONCES){
+            cout << "}else{" << endl;
             token = getToken();
-            cout << "}" << endl;
             token = getToken();
-            if (token == BUCLEF) {
-                cout << "}" << endl;
+            token = getToken();
+            Atributos attr;
+            if (token == IMPRIMIR) {
+                cout << "\tconsole.log";
+                token = getToken();
+                cout << "(";
+                token = getToken();
+                if (token == VAR) {
+                    ts.Buscar(variable, attr);
+                    cout << variable;
+                } else if (token == CADENA) {
+                    cout << "\"" << cadena << "\"";
+                } else if (token == NUM) {
+                    cout << numero;
+                }
+                token = getToken();
+                token = getToken();
+                cout << ");" << endl;
+                token = getToken();
+                token = getToken();
             }
+            cout << "}" << endl;
         } else if (token == METODO) {
             cout << "function ";
             token = getToken();
@@ -772,8 +822,9 @@ bool Ejecucion() {
             cout << " {" << endl;
             token = getToken(); // salto de linea
             token = getToken(); // tab
-            while (token == TAB) {
-                token = getToken();
+            // cout << "======" << token << endl;
+            // while (token == TAB) {
+            //     token = getToken();
                 if (token == RETORNO) {
                     cout << "\treturn ";
                     token = getToken();
@@ -788,7 +839,7 @@ bool Ejecucion() {
                         token = getToken();
                     }
                 }
-            }
+            // }
             cout << "}" << endl;
         } else {
             token = getToken();
@@ -826,7 +877,7 @@ int main()
     // Analisis*obj=new Analisis("print(1) nn");
     // Analisis*obj=new Analisis("def sumar(a): return a+1 if a > 0 else a+23");
     // obj->leerArchivo("input.py");
-    obj->leerArchivo("input2.py");
+    // obj->leerArchivo("input2.py");
     // obj->leerArchivo("input3.py");
     // obj->leerArchivo("input4.py");
     // obj->leerArchivo("input5.py");
@@ -834,7 +885,7 @@ int main()
     // obj->leerArchivo("input7.py");
     // obj->leerArchivo("input8.py");
     // obj->leerArchivo("input9.py");
-    // obj->leerArchivo("input10.py");
+    obj->leerArchivo("input10.py");
     obj->Analizar();
     return true;
 }
