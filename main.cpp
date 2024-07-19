@@ -396,63 +396,199 @@ class Analisis{
         bool Semantico(){
             i=0;
             int token=0;
-            return true;
+            while(true){
+                token=getToken();
+                if(token==FIN){
+                    return true;
+                }
+                if (token == VAR){
+                    token=getToken();
+                    token=getToken();
+                    if(token==VAR){
+                        Atributos attr;
+                        if(!ts.Buscar(variable,attr)){
+                            Error(101);
+                            return false;
+                        }
+                        else if(attr.estado == null){
+                            Error(101);
+                            return false;
+                        }
+                    }
+                    token=getToken();//;
+                }
+                else if (token == SI){
+                    token=getToken();
+                    Atributos attr;
+                    for(int ii=0;ii<4;ii++){
+                        token=getToken();
+                        if(token==VAR){
+                            if(!ts.Buscar(variable,attr)){
+                                Error(200);
+                                return false;
+                            }
+                            else if(attr.estado == null){
+                                Error(200);
+                                return false;
+                            }
+                        }
+                        token=getToken();
+                    }
+                    token=getToken();
+                }
+                if (token == IMPRIMIR){
+                    token = getToken();
+                    token = getToken();
+                    Atributos attr;
+                    for(int ii=0;ii<3;ii++){
+                        token=getToken();
+                        if(token==VAR && variable.length()==1 && attr.valor!=null){
+                            if(!ts.Buscar(variable,attr)){
+                                Error(300);
+                                return false;
+                            }
+                            else if(attr.estado == null){
+                                Error(300);
+                                return false;
+                            }
+                        }
+                        token=getToken();
+                    }
+                    token=getToken();
+                }
+                if (token == BUCLEF){
+                    token = getToken();
+                    Atributos attr;
+                    for(int ii=0;ii<3;ii++){
+                        token=getToken();
+                        if(token==VAR){
+                            if(!ts.Buscar(variable,attr)){
+                                Error(400);
+                                return false;
+                            }
+                            else if(attr.estado == null){
+                                Error(400);
+                                return false;
+                            }
+                        }
+                        token=getToken();
+                    }
+                    token=getToken();
+                }
+                if (token == ENTONCES){
+                    token = getToken();
+                    if (token== DPUNTOSF){
+                        token = getToken();
+                        if (token != SALTO) Error(501);
+                    }
+                }
+                if (token == RETORNO){
+                    token = getToken();
+                    Atributos attr;
+                    for(int ii=0;ii<1;ii++){
+                        token=getToken();
+                        if(token==VAR){
+                            if(!ts.Buscar(variable,attr)){
+                                Error(600);
+                                return false;
+                            }
+                            else if(attr.estado == null){
+                                Error(600);
+                                return false;
+                            }
+                        }
+                        token=getToken();
+                    }
+                    token=getToken();
+                }
+                if(token == TAB){
+                    int tmp_token = token;
+                    tmp_token = getToken();
+                    if (tmp_token == SALTO) Error(700);
+
+                }
+                if (token == METODO){
+                    token = getToken();
+                    Atributos attr;
+                    for(int ii=0;ii<5;ii++){
+                        token=getToken();
+                        if(token==VAR && attr.valor!=null){
+                            if(!ts.Buscar(variable,attr)){
+                                Error(800);
+                                return false;
+                            }
+                            else if(attr.estado == null){
+                                Error(800);
+                                return false;
+                            }
+                        }
+                        token=getToken();
+                    }
+                    token=getToken();
+                }
+            }
         }
 
-        bool Ejecucion() {
+        bool Ejecucion(){
             std::stack<string> pilaBloque;
             std::vector<string> bloques;
-            i = 0;
-            int token = 0;
-
-            while (true) {
-                token = getToken();
-                if (token == FIN) {
-                    while (!pilaBloque.empty()) {
+            i=0;
+            int token=0;
+            while(true){
+                token=getToken();
+                if(token==FIN){
+                    while (!pilaBloque.empty()){
+                        if (pilaBloque.top() == "function"){
+                            cout << "}" << endl;
+                            pilaBloque.pop();
+                            return true;
+                        }
                         cout << "}" << endl;
                         pilaBloque.pop();
                     }
                     return true;
                 }
-                if (token == VAR) {
+                if (token == VAR){
                     string tmp_var = variable;
-                    token = getToken();
-                    token = getToken();
-                    if (token == VAR) {
+                    token=getToken();
+                    token=getToken();
+                    if (token == VAR){
                         Atributos attr;
                         ts.ActualizarValor(variable, attr.valor);
                     }
                     token = getToken();
-                    if (token == SALTO) {
+                    if (token == SALTO){
                         cout << "const " << tmp_var << " = " << numero << ";" << endl;
                     }
-                    if (token == DPUNTOSF) {
+                    if(token == DPUNTOSF){
                         cout << tmp_var;
                     }
                     bloques.push_back("var");
-                } else if (token == SI) {
+                }
+                else if (token == SI){
                     cout << "if (";
-                    token = getToken();
-                    if (token == VAR) cout << variable;
-                    token = getToken();
-                    if (token == MAYOR) {
+                    string tmp_var = variable;
+                    token=getToken();
+                    if (token == VAR) cout<< variable;
+                    token=getToken();
+                    if (token == MAYOR){
                         cout << " > ";
-                    } else if (token == MENOR) {
+                    }else if (token == MENOR){
                         cout << " < ";
-                    } else {
+                    }else{
                         cout << " == ";
                     }
-                    token = getToken();
+                    token=getToken();
                     if (token == NUM) cout << numero;
                     if (token == VAR) cout << variable;
-                    token = getToken();
+                    token=getToken();
                     if (token == DPUNTOSF) cout << ") {" << endl;
                     pilaBloque.push("if");
                     bloques.push_back("if");
                     token = getToken();
                     token = getToken();
                 }
-                if (token == IMPRIMIR) {
+                if (token == IMPRIMIR){
                     cout << "console.log(";
                     token = getToken();
                     while(token != CPAR){
@@ -464,16 +600,16 @@ class Analisis{
                     }
                     cout << ");" << endl;
                     token = getToken();
-                    token = getToken();
                     bloques.push_back("imprimir");
                 }
-                if (token == BUCLEF) {
-                    int lst = bloques.size() - 1;
-                    while (!pilaBloque.empty()) {
-                        if (pilaBloque.top() == "for" && bloques[lst] != "for") {
+                if (token == BUCLEF){
+                    int lst = bloques.size()-1;
+                    while(!pilaBloque.empty()){
+                        if (pilaBloque.top() == "for" && bloques[lst] != "for"){
                             cout << "}" << endl;
                             pilaBloque.pop();
-                        } else {
+                        }
+                        else{
                             break;
                         }
                     }
@@ -481,7 +617,7 @@ class Analisis{
                     if (it != bloques.end()) {
                         bloques.erase(it);
                     }
-
+                    
                     cout << "for (";
                     token = getToken();
                     if (token == VAR) cout << "const " << variable;
@@ -489,7 +625,7 @@ class Analisis{
                     if (token == INF) cout << " of ";
                     token = getToken();
                     cout << "[";
-                    while (token != CCORCHETE) {
+                    while(token != CCORCHETE){
                         token = getToken();
                         if (token == NUM) cout << numero;
                         if (token == COMA) cout << ",";
@@ -501,33 +637,33 @@ class Analisis{
                     pilaBloque.push("for");
                     bloques.push_back("for");
                 }
-                if (token == ENTONCES) {
+                if (token == ENTONCES){
                     cout << "}else {" << endl;
                     token = getToken();
                     bloques.push_back("else");
                 }
-                if (token == RETORNO) {
+                if (token == RETORNO){
                     cout << "\treturn ";
                     token = getToken();
                     if (token == VAR) cout << variable;
                     if (token == NUM) cout << numero;
                     cout << ";" << endl;
                 }
-                if (token == TAB) {
+                if(token == TAB){
                     cout << "\t";
                 }
-                if (token == METODO) {
-                    for (const auto& bloque : bloques) {
-                        if (bloque == "for" || bloque == "if") {
-                            cout << "}" << endl;
-                        }
+                if (token == METODO){
+                    for (int i = 0; i < bloques.size(); i++){
+                        // cout << bloques[i] << endl;
+                        if (bloques[i]=="for") cout << "}" << endl;
+                        if (bloques[i]=="if") cout << "}" << endl;
                     }
                     cout << "function ";
                     token = getToken();
                     if (token == VAR) cout << variable;
                     token = getToken();
                     cout << "(";
-                    while (token != CPAR) {
+                    while (token != CPAR){
                         token = getToken();
                         if (token == VAR) cout << variable;
                         if (token == COMA) cout << ", ";
@@ -535,6 +671,7 @@ class Analisis{
                     if (token == CPAR) cout << ") ";
                     token = getToken();
                     if (token == DPUNTOSF) cout << " {" << endl;
+                    // blockLevel++;
                     pilaBloque.push("function");
                     bloques.push_back("funcion");
                 }
@@ -559,13 +696,37 @@ class Analisis{
             if(nroError==500){
                 cout<<"La variable: "<<variable<<" no ha sido declarada";
             }
+            if(nroError==101){
+                cout<<"Error en la variable declarada";
+            }
+            if(nroError==200){
+                cout<<"Error de semantica en condicional";
+            }
+            if(nroError==300){
+                cout<<"Error de semantica en imprimir";
+            }
+            if(nroError==400){
+                cout<<"Error de semantica en for";
+            }
+            if(nroError==501){
+                cout<<"Error de semantica en condicional else";
+            }
+            if(nroError==600){
+                cout<<"Error de semantica en return";
+            }
+            if(nroError==700){
+                cout<<"Error de semantica en Tabulacion";
+            }
+            if(nroError==800){
+                cout<<"Error de semantica en funcion";
+            }
         }
 };
 
 int main()
 {
     Analisis*obj = new Analisis("");
-    obj->leerArchivo("input10.py");
+    obj->leerArchivo("input.py");
     obj->Analizar();
     return true;
 }
